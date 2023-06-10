@@ -54,6 +54,8 @@ data/rgbd_data/
 Note that all path variables in scripts are absolute, so remember to change them as needed.
 You can add arbitrary new data by appending the new folder to `_C.DATA.RGBD.data_path` in `config/default.py`.
 
+Oringinal data source links: [HM3D](https://aihabitat.org/datasets/hm3d/), [SceneNet](https://robotvault.bitbucket.io/scenenet-rgbd.html), [SUN3D](https://sun3d.cs.princeton.edu/), [TUM](https://vision.in.tum.de/data/datasets/rgbd-dataset/download), [DIODE](https://diode-dataset.org/) and [NYUv2](http://horatio.cs.nyu.edu/mit/silberman/nyu_depth_v2/nyu_depth_v2_labeled.mat).
+
 ## Run pre-training
 ### train
 `train.sh` is used for training on single GPU; `multi_proc.sh` is used for training on multiple GPUs. The pre-trained weights will be stored in `data/checkpoints`.
