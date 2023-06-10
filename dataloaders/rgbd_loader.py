@@ -68,11 +68,11 @@ class DistRGBDLoader(BaseLoader):
         elif mode == "eval":
             ds = RGBDDataset(config, mode=mode)
             kwargs["batch_size"] = config.TRAINER.batch_size
-            if config.DATA.RGBD.EVAL.shuffle=="shuffle":
+            if config.DATA.RGBD.EVAL.shuffle == "shuffle":
                 kwargs["shuffle"] = True
-            elif config.DATA.RGBD.EVAL.shuffle=="non-shuffle":
+            elif config.DATA.RGBD.EVAL.shuffle == "non-shuffle":
                 kwargs["shuffle"] = False
-            elif config.DATA.RGBD.EVAL.shuffle=="block-shuffle":
+            elif config.DATA.RGBD.EVAL.shuffle == "block-shuffle":
                 kwargs["shuffle"] = False
                 block_size = config.DATA.RGBD.EVAL.block_size
                 kwargs["sampler"] = BlockShuffleDistSampler(
@@ -85,11 +85,11 @@ class DistRGBDLoader(BaseLoader):
         elif mode == "generate_eval_order":
             ds = OrderRGBDDataset(config, mode=mode)
             kwargs["batch_size"] = config.TRAINER.batch_size
-            if config.DATA.RGBD.EVAL.shuffle=="shuffle":
+            if config.DATA.RGBD.EVAL.shuffle == "shuffle":
                 kwargs["shuffle"] = True
-            elif config.DATA.RGBD.EVAL.shuffle=="non-shuffle":
+            elif config.DATA.RGBD.EVAL.shuffle == "non-shuffle":
                 kwargs["shuffle"] = False
-            elif config.DATA.RGBD.EVAL.shuffle=="block-shuffle":
+            elif config.DATA.RGBD.EVAL.shuffle == "block-shuffle":
                 kwargs["shuffle"] = False
                 block_size = config.DATA.RGBD.EVAL.block_size
                 kwargs["sampler"] = BlockShuffleDistSampler(

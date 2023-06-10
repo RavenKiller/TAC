@@ -78,9 +78,7 @@ for split in ["indoors", "outdoor"]:
     _C.DATA.RGBD.scale_value.append(1000.0)
     _C.DATA.RGBD.time_factor.append(36.60)  # 4 images
 ## add tum
-_C.DATA.RGBD.data_path.append(
-    "/root/TAC/data/rgbd_data/tumrgbd_clean_resize/train"
-)
+_C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/tumrgbd_clean_resize/train")
 _C.DATA.RGBD.scale_value.append(5000.0)
 _C.DATA.RGBD.time_factor.append(1416.31)  # 42 images half the original value
 
@@ -98,15 +96,11 @@ _C.DATA.RGBD.EVAL.data_path = []
 _C.DATA.RGBD.EVAL.scale_value = []
 _C.DATA.RGBD.EVAL.time_factor = []
 ## add hm3d
-_C.DATA.RGBD.EVAL.data_path.append(
-    "/root/TAC/data/rgbd_data/pretrain_val/hm3d_val"
-)
+_C.DATA.RGBD.EVAL.data_path.append("/root/TAC/data/rgbd_data/pretrain_val/hm3d_val")
 _C.DATA.RGBD.EVAL.scale_value.append(1000.0)
 _C.DATA.RGBD.EVAL.time_factor.append(87.56)
 ## add sun3d
-_C.DATA.RGBD.EVAL.data_path.append(
-    "/root/TAC/data/rgbd_data/pretrain_val/sun3d_val"
-)
+_C.DATA.RGBD.EVAL.data_path.append("/root/TAC/data/rgbd_data/pretrain_val/sun3d_val")
 _C.DATA.RGBD.EVAL.scale_value.append(8000.0)
 _C.DATA.RGBD.EVAL.time_factor.append(42.96)
 ## add scenenet
@@ -116,15 +110,11 @@ _C.DATA.RGBD.EVAL.data_path.append(
 _C.DATA.RGBD.EVAL.scale_value.append(1000.0)
 _C.DATA.RGBD.EVAL.time_factor.append(278.17)
 ## add diode
-_C.DATA.RGBD.EVAL.data_path.append(
-    "/root/TAC/data/rgbd_data/pretrain_val/diode_val"
-)
+_C.DATA.RGBD.EVAL.data_path.append("/root/TAC/data/rgbd_data/pretrain_val/diode_val")
 _C.DATA.RGBD.EVAL.scale_value.append(1000.0)
 _C.DATA.RGBD.EVAL.time_factor.append(36.60)
 ## add tum
-_C.DATA.RGBD.EVAL.data_path.append(
-    "/root/TAC/data/rgbd_data/pretrain_val/tum_val"
-)
+_C.DATA.RGBD.EVAL.data_path.append("/root/TAC/data/rgbd_data/pretrain_val/tum_val")
 _C.DATA.RGBD.EVAL.scale_value.append(5000.0)
 _C.DATA.RGBD.EVAL.time_factor.append(1416.31)
 

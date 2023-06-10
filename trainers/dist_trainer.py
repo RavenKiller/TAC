@@ -469,7 +469,11 @@ class DistTrainer(BaseTrainer):
         root_folder = long_str(all_rgbs[0 : min(50, len(all_rgbs))])
         all_rgbs_relative = [v.replace(root_folder, "") for v in all_rgbs]
         all_depths_relative = [v.replace(root_folder, "") for v in all_depths]
-        with open(f"eval_{self.config.DATA.RGBD.EVAL.shuffle}_rgb_order.json", "w") as f:
+        with open(
+            f"eval_{self.config.DATA.RGBD.EVAL.shuffle}_rgb_order.json", "w"
+        ) as f:
             f.write(json.dumps(all_rgbs_relative, indent=2))
-        with open(f"eval_{self.config.DATA.RGBD.EVAL.shuffle}_depth_order.json", "w") as f:
+        with open(
+            f"eval_{self.config.DATA.RGBD.EVAL.shuffle}_depth_order.json", "w"
+        ) as f:
             f.write(json.dumps(all_depths_relative, indent=2))
