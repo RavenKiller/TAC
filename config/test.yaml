@@ -1,0 +1,11 @@
+DEVICE: [0]
+TENSORBOARD_DIR: data/tensorboard_dirs/test
+CHECKPOINT_DIR: data/checkpoints/test
+TRAINER:
+  batch_size: 128
+  epochs: 1
+MODEL:
+  loss_type: TAC
+DATA:
+  RGBD:
+    data_path: ["/root/TAC/data/rgbd_data/hm3d_rgbd/train/0"]

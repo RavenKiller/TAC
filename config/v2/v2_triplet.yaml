@@ -1,0 +1,8 @@
+DEVICE: [0]
+TENSORBOARD_DIR: data/tensorboard_dirs/tacv2_triplet
+CHECKPOINT_DIR: data/checkpoints/tacv2_triplet
+TRAINER:
+  batch_size: 128
+  epochs: 1
+MODEL:
+  loss_type: T_COS

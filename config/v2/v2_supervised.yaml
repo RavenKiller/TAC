@@ -1,0 +1,10 @@
+DEVICE: [0]
+TENSORBOARD_DIR: data/tensorboard_dirs/tacv2_supervised
+CHECKPOINT_DIR: data/checkpoints/tacv2_supervised
+TRAINER:
+  batch_size: 128
+  epochs: 1
+MODEL:
+  loss_type: SUP
+  IMAGE:
+    trainable: True

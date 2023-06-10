@@ -1,0 +1,11 @@
+DEVICE: [0]
+TENSORBOARD_DIR: data/tensorboard_dirs/tacv2_contrastive
+CHECKPOINT_DIR: data/checkpoints/tacv2_contrastive
+TRAINER:
+  batch_size: 128
+  epochs: 1
+MODEL:
+  loss_type: C_L2
+  IMAGE:
+    model_name: openai/clip-vit-base-patch32
+    trainable: True
