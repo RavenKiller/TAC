@@ -20,7 +20,7 @@ The script for unifying various RGB-D frames to generate UniRGBD is `scripts/rgb
 
 HM3D is free for academic, non-commercial research, but requires the access from [Mattterport](https://matterport.com/habitat-matterport-3d-research-dataset). After getting the access and 3D scenes, you can run `scripts/hm3d_data.mp.py` to generate RGB-D frames or request us to download the pre-processed version.
 
-After decompression, the folder structure will be like (end at episodes' roots):
+After decompression, the folder structure will be like (there may exist a few redundant folders):
 ```
 data/rgbd_data/
 ├── diode_clean_resize
@@ -33,7 +33,9 @@ data/rgbd_data/
 │       ├── 1
 │       └── ...
 ├── nyuv2_resize
-│   └── train
+│   ├── all
+│   ├── train
+│   └── val
 ├── pretrain_val
 │   ├── diode_val
 │   ├── hm3d_val
@@ -75,6 +77,10 @@ Run `generate_eval_order.sh` to compare whether the evaluation orders are same a
 
 \[coming soon\]
 
+## Extended experiments
+1. `scripts/uncertainty.ipynb`: Conduct the MC Dropout uncertainty analysis.
+2. `scripts/zero_shot.ipynb`: Conduct zero-shot room classification by depth images.
+
 ## Embodied experiments
 Experiment codes are stored in [here](https://github.com/RavenKiller/TACEmbodied).
 ### Visualization
@@ -92,3 +98,5 @@ EQA
 ![image](resources/eqa1.jpg)
 
 Rearrange
+
+![image](resources/rearrange1.gif)
