@@ -53,7 +53,7 @@ _C.DATA.RGBD.is_resized = True
 _C.DATA.RGBD.block_size = 1
 
 ## add hm3d
-for i in range(52):
+for i in range(5):
     _C.DATA.RGBD.data_path.append(
         "/root/TAC/data/rgbd_data/hm3d_rgbd/train/{}".format(i)
     )
@@ -64,7 +64,7 @@ _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/sun3d/train")
 _C.DATA.RGBD.scale_value.append(8000.0)
 _C.DATA.RGBD.time_factor.append(42.96)  # 43 images, half the original value
 ## add scenenet
-for i in range(17):
+for i in range(2):
     _C.DATA.RGBD.data_path.append(
         "/root/TAC/data/rgbd_data/scenenet_resize/train/{}".format(i)
     )
