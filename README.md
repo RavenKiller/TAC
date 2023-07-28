@@ -14,7 +14,8 @@ pip install -r requirements
 
 ## UniRGBD dataset
 An unified and universal RGB-D database for depth representation pre-training.
-![image](resources/examples.jpg)
+
+<img src="resources/examples.jpg" alt="drawing" width="50%"/>
 
 The script for unifying various RGB-D frames to generate UniRGBD is `scripts/rgbd_data.ipynb`. You can download our pre-processed version (split into several parts due to too large size): \[[HM3D](https://pan.baidu.com/s/1bUUJnB_dI3cEv2U3j04ufA)\]\[[SceneNet](https://pan.baidu.com/s/1YCJkQHWhGAUxGD9orNAcJw)\]\[[SUN3D](https://pan.baidu.com/s/1gtF_Ybsc758ntnIbK2LotA)\]\[[TUM, DIODE, NYUv2](https://pan.baidu.com/s/1idvJlEUzZDmTZSixTuxkEQ)\]\[[Evaluation data](https://pan.baidu.com/s/1_RtF_D-KApDEnIqCStqVZQ)\]. The access code is `tacp`.
 
