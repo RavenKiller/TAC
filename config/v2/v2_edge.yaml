@@ -1,0 +1,15 @@
+DEVICE: [0]
+TENSORBOARD_DIR: data/tensorboard_dirs/edge
+CHECKPOINT_DIR: data/checkpoints/edge
+TRAINER:
+  batch_size: 128
+  epochs: 1
+  adam_epsilon: 1e-8
+  weight_decay: 1e-3
+  learning_rate: 2e-5
+MODEL:
+  name: EDGE
+  loss_type: CANNY_IOU
+  IMAGE:
+    model_name: openai/clip-vit-base-patch32
+    trainable: True

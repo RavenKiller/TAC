@@ -115,7 +115,7 @@ class RGBDDataset(Dataset):
             self.scale_value = config.DATA.RGBD.EVAL.scale_value
             self.time_factor = config.DATA.RGBD.EVAL.time_factor
             self.is_resized = config.DATA.RGBD.EVAL.is_resized
-
+        self.config = config
         self.image_samples = []
         self.depth_samples = []
         self.depth_scales = []
@@ -151,13 +151,16 @@ class RGBDDataset(Dataset):
     def read_image(self, image_path):
         """Return a image tensor from image_path"""
         image = Image.open(image_path).convert("RGB")
-        if self.is_resized:
-            image = self.processor(
-                image, do_resize=False, do_center_crop=False, return_tensors="pt"
-            ).pixel_values.squeeze()
-            # test2 = self.processor(image, return_tensors="pt").pixel_values.squeeze()
+        if self.config.MODEL.name != "EDGE":
+            if self.is_resized:
+                image = self.processor(
+                    image, do_resize=False, do_center_crop=False, return_tensors="pt"
+                ).pixel_values.squeeze()
+                # test2 = self.processor(image, return_tensors="pt").pixel_values.squeeze()
+            else:
+                image = self.processor(image, return_tensors="pt").pixel_values.squeeze()
         else:
-            image = self.processor(image, return_tensors="pt").pixel_values.squeeze()
+            image = torch.tensor(np.array(image))
         return image
 
     def read_depth(self, depth_path, depth_scale=5000.0):
@@ -167,17 +170,20 @@ class RGBDDataset(Dataset):
         depth = np.clip(depth, MIN_DEPTH, MAX_DEPTH)
         depth = (depth - MIN_DEPTH) / (MAX_DEPTH - MIN_DEPTH)
         depth = np.expand_dims(depth, axis=2).repeat(3, axis=2)
-        if self.is_resized:
-            depth = self.processor(
-                depth,
-                do_resize=False,
-                do_center_crop=False,
-                do_rescale=False,
-                return_tensors="pt",
-            ).pixel_values.squeeze()
-            # test2 = self.processor(depth, return_tensors="pt").pixel_values.squeeze() # numeric error because of [0,1]->[0,255]->[0,1]
+        if self.config.MODEL.name != "EDGE":
+            if self.is_resized:
+                depth = self.processor(
+                    depth,
+                    do_resize=False,
+                    do_center_crop=False,
+                    do_rescale=False,
+                    return_tensors="pt",
+                ).pixel_values.squeeze()
+                # test2 = self.processor(depth, return_tensors="pt").pixel_values.squeeze() # numeric error because of [0,1]->[0,255]->[0,1]
+            else:
+                depth = self.processor(depth, return_tensors="pt").pixel_values.squeeze()
         else:
-            depth = self.processor(depth, return_tensors="pt").pixel_values.squeeze()
+            depth = torch.tensor(depth)
         return depth
 
     def __len__(self):

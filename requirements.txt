@@ -29,4 +29,5 @@ natsort
 matplotlib
 h5py
 scikit-learn
+opencv-contrib-python
 scikit-learn-intelex

@@ -53,7 +53,7 @@ _C.DATA.RGBD.is_resized = True
 _C.DATA.RGBD.block_size = 1
 
 ## add hm3d
-for i in range(5):
+for i in range(30): # fullsize is 52
     _C.DATA.RGBD.data_path.append(
         "/root/TAC/data/rgbd_data/hm3d_rgbd/train/{}".format(i)
     )
@@ -64,7 +64,7 @@ _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/sun3d/train")
 _C.DATA.RGBD.scale_value.append(8000.0)
 _C.DATA.RGBD.time_factor.append(42.96)  # 43 images, half the original value
 ## add scenenet
-for i in range(2):
+for i in range(10): # full size is 17
     _C.DATA.RGBD.data_path.append(
         "/root/TAC/data/rgbd_data/scenenet_resize/train/{}".format(i)
     )
@@ -89,7 +89,7 @@ _C.DATA.RGBD.time_factor.append(1416.31)  # 42 images half the original value
 # Eval config
 _C.DATA.RGBD.EVAL = CN()
 _C.DATA.RGBD.EVAL.is_resized = True
-_C.DATA.RGBD.EVAL.shuffle = "shuffle"
+_C.DATA.RGBD.EVAL.shuffle = "noshuffle"
 _C.DATA.RGBD.EVAL.block_size = 10
 _C.DATA.RGBD.EVAL.seed = 25
 _C.DATA.RGBD.EVAL.data_path = []
