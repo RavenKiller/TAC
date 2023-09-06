@@ -76,6 +76,19 @@ class EDGE(BaseModel):
                 i = (i*255).astype(np.uint8)
                 # Sobel edge detection
                 edges_depth.append(np.abs(cv2.Sobel(i,cv2.CV_32F, 1, 1, ksize=3)))
+        elif edge_alg=="LAPLACIAN":
+            for i in image:
+                # normalize
+                i = cv2.cvtColor(i, cv2.COLOR_BGR2GRAY)
+                # Sobel edge detection
+                edges_image.append(cv2.convertScaleAbs(cv2.Laplacian(i, cv2.CV_8U))) # ignoring the edge direction
+            for i in depth:
+                # normalize
+                i = cv2.cvtColor(i, cv2.COLOR_BGR2GRAY)
+                i = (i-i.min())/(i.max()-i.min()+1e-8)
+                i = (i*255).astype(np.uint8)
+                # Sobel edge detection
+                edges_depth.append(cv2.convertScaleAbs(cv2.Laplacian(i, cv2.CV_8U)))
         
         if metric=="IOU":
             for i in range(bs):

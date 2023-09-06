@@ -301,9 +301,9 @@ class DistTrainer(BaseTrainer):
                     )
                     time.sleep(1)
                     time_cnt += 1
-                    if time_cnt >= 30:
+                    if time_cnt >= 3:
                         break
-                if time_cnt >= 30:
+                if time_cnt >= 3:
                     break
                 logger.info(f"Evaluating {current_ckpt}")
                 prev_ckpt_ind += 1
@@ -332,6 +332,7 @@ class DistTrainer(BaseTrainer):
                     self.config.CHECKPOINT_DIR, "evals", current_ckpt
                 )
                 with open(result_file, "w") as f:
+                    logger.info(res)
                     f.write(json.dumps(res, indent=2))
 
     def _eval_model(self, model=None, loader=None, index=0):
