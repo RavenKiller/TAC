@@ -1,6 +1,6 @@
 seed=25
 fd=v2
-cfg=v2_tac_hm3d
+cfg=v2_tac
 
 python run_dist.py \
     --mode eval \

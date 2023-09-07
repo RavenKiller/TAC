@@ -9,7 +9,7 @@ TRAINER:
   learning_rate: 2e-5
 MODEL:
   name: EDGE
-  loss_type: SOBEL_CORR
+  loss_type: CANNY_CORR
   IMAGE:
     model_name: openai/clip-vit-base-patch32
     trainable: True

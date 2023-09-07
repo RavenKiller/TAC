@@ -50,37 +50,37 @@ _C.DATA.RGBD.time_factor = []
 _C.DATA.RGBD.is_resized = True
 # shuffle the data by blocks (enable generating samples with the same path)
 # the final block size is the minimum between block_size and batch_size/2
-_C.DATA.RGBD.block_size = 1
+_C.DATA.RGBD.block_size = 8
 
 ## add hm3d
-for i in range(30): # fullsize is 52
-    _C.DATA.RGBD.data_path.append(
-        "/root/TAC/data/rgbd_data/hm3d_rgbd/train/{}".format(i)
-    )
-    _C.DATA.RGBD.scale_value.append(1000.0)
-    _C.DATA.RGBD.time_factor.append(87.56)  # 9 images
+# for i in range(30): # fullsize is 52
+#     _C.DATA.RGBD.data_path.append(
+#         "/root/TAC/data/rgbd_data/hm3d_rgbd/train/{}".format(i)
+#     )
+#     _C.DATA.RGBD.scale_value.append(1000.0)
+#     _C.DATA.RGBD.time_factor.append(87.56)  # 9 images
 ## add sun3d
-_C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/sun3d/train")
-_C.DATA.RGBD.scale_value.append(8000.0)
-_C.DATA.RGBD.time_factor.append(42.96)  # 43 images, half the original value
+# _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/sun3d/train")
+# _C.DATA.RGBD.scale_value.append(8000.0)
+# _C.DATA.RGBD.time_factor.append(42.96)  # 43 images, half the original value
 ## add scenenet
-for i in range(10): # full size is 17
+for i in range(16): # full size is 17
     _C.DATA.RGBD.data_path.append(
         "/root/TAC/data/rgbd_data/scenenet_resize/train/{}".format(i)
     )
     _C.DATA.RGBD.scale_value.append(1000.0)
     _C.DATA.RGBD.time_factor.append(278.17)  # 11 images
 ## add diode
-for split in ["indoors", "outdoor"]:
-    _C.DATA.RGBD.data_path.append(
-        "/root/TAC/data/rgbd_data/diode_clean_resize/train/{}".format(split)
-    )
-    _C.DATA.RGBD.scale_value.append(1000.0)
-    _C.DATA.RGBD.time_factor.append(36.60)  # 4 images
+# for split in ["indoors", "outdoor"]:
+#     _C.DATA.RGBD.data_path.append(
+#         "/root/TAC/data/rgbd_data/diode_clean_resize/train/{}".format(split)
+#     )
+#     _C.DATA.RGBD.scale_value.append(1000.0)
+#     _C.DATA.RGBD.time_factor.append(36.60)  # 4 images
 ## add tum
-_C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/tumrgbd_clean_resize/train")
-_C.DATA.RGBD.scale_value.append(5000.0)
-_C.DATA.RGBD.time_factor.append(1416.31)  # 42 images half the original value
+# _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/tumrgbd_clean_resize/train")
+# _C.DATA.RGBD.scale_value.append(5000.0)
+# _C.DATA.RGBD.time_factor.append(1416.31)  # 42 images half the original value
 
 
 #########################################################################################
@@ -90,7 +90,7 @@ _C.DATA.RGBD.time_factor.append(1416.31)  # 42 images half the original value
 _C.DATA.RGBD.EVAL = CN()
 _C.DATA.RGBD.EVAL.is_resized = True
 _C.DATA.RGBD.EVAL.shuffle = "noshuffle"
-_C.DATA.RGBD.EVAL.block_size = 10
+_C.DATA.RGBD.EVAL.block_size = 8
 _C.DATA.RGBD.EVAL.seed = 25
 _C.DATA.RGBD.EVAL.data_path = []
 _C.DATA.RGBD.EVAL.scale_value = []
