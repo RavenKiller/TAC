@@ -359,13 +359,16 @@ class DistTrainer(BaseTrainer):
                     for k, v in batch.items()
                 }
                 outputs = model(batch)
+                try:
+                    all_predictions_top5.extend(
+                        torch.topk(outputs["logits"], 5)[1].cpu().tolist()
+                    )
+                    all_predictions_top5.extend(
+                        torch.topk(outputs["logits"].T, 5)[1].cpu().tolist()
+                    )
+                except RuntimeError:
+                    break
                 all_predictions.extend(outputs["predictions"].cpu().tolist())
-                all_predictions_top5.extend(
-                    torch.topk(outputs["logits"], 5)[1].cpu().tolist()
-                )
-                all_predictions_top5.extend(
-                    torch.topk(outputs["logits"].T, 5)[1].cpu().tolist()
-                )
                 all_targets.extend(outputs["targets"].cpu().tolist())
                 all_filepaths.extend(batch["file_path"])
                 all_filepaths.extend(batch["file_path"])

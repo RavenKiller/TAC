@@ -19,12 +19,15 @@ from common.logger import logger
 import torch.distributed as dist
 from natsort import natsorted
 
-MIN_DEPTH = 0
-MAX_DEPTH = 10
+MIN_DEPTH = 0.0
+MAX_DEPTH = 65.535
 
 
-def list_sort(data_path):
-    return sorted(os.listdir(data_path), key=lambda f: int(re.sub(r"\D", "", f)))
+def list_sort(data_path, onlydigit=True):
+    if onlydigit:
+        return sorted(os.listdir(data_path), key=lambda f: int(re.sub(r"\D", "", f)))
+    else:
+        return sorted(os.listdir(data_path))
 
 
 @registry.register_dataloader
@@ -123,7 +126,7 @@ class RGBDDataset(Dataset):
         # data_path / episodes / image / sequence
         assert isinstance(self.data_path, list), "The data_path must be list!"
         for i, data_path in enumerate(self.data_path):
-            for episode in list_sort(data_path):
+            for episode in list_sort(data_path, onlydigit=False):
                 image_files = list_sort(os.path.join(data_path, episode, "rgb"))
                 depth_files = list_sort(os.path.join(data_path, episode, "depth"))
                 assert len(image_files) == len(
@@ -158,7 +161,9 @@ class RGBDDataset(Dataset):
                 ).pixel_values.squeeze()
                 # test2 = self.processor(image, return_tensors="pt").pixel_values.squeeze()
             else:
-                image = self.processor(image, return_tensors="pt").pixel_values.squeeze()
+                image = self.processor(
+                    image, return_tensors="pt"
+                ).pixel_values.squeeze()
         else:
             image = torch.tensor(np.array(image))
         return image
@@ -167,6 +172,7 @@ class RGBDDataset(Dataset):
         """Return a depth tensor from depth_path"""
         depth = Image.open(depth_path)
         depth = np.array(depth).astype("float32") / depth_scale  # to meters
+        MIN_DEPTH = depth.min()
         depth = np.clip(depth, MIN_DEPTH, MAX_DEPTH)
         depth = (depth - MIN_DEPTH) / (MAX_DEPTH - MIN_DEPTH)
         depth = np.expand_dims(depth, axis=2).repeat(3, axis=2)
@@ -181,7 +187,9 @@ class RGBDDataset(Dataset):
                 ).pixel_values.squeeze()
                 # test2 = self.processor(depth, return_tensors="pt").pixel_values.squeeze() # numeric error because of [0,1]->[0,255]->[0,1]
             else:
-                depth = self.processor(depth, return_tensors="pt").pixel_values.squeeze()
+                depth = self.processor(
+                    depth, return_tensors="pt"
+                ).pixel_values.squeeze()
         else:
             depth = torch.tensor(depth)
         return depth
@@ -192,6 +200,7 @@ class RGBDDataset(Dataset):
     def __getitem__(self, i):
         image_path = self.image_samples[i]
         depth_path = self.depth_samples[i]
+        # print(image_path, depth_path)
         depth_scale = self.depth_scales[i]
         image_tensor = self.read_image(image_path)
         depth_tensor = self.read_depth(depth_path, depth_scale)

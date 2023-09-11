@@ -64,24 +64,30 @@ _C.DATA.RGBD.block_size = 8
 # _C.DATA.RGBD.scale_value.append(8000.0)
 # _C.DATA.RGBD.time_factor.append(42.96)  # 43 images, half the original value
 ## add scenenet
-for i in range(16): # full size is 17
-    _C.DATA.RGBD.data_path.append(
-        "/root/TAC/data/rgbd_data/scenenet_resize/train/{}".format(i)
-    )
-    _C.DATA.RGBD.scale_value.append(1000.0)
-    _C.DATA.RGBD.time_factor.append(278.17)  # 11 images
-## add diode
-# for split in ["indoors", "outdoor"]:
+# for i in range(16): # full size is 17
 #     _C.DATA.RGBD.data_path.append(
-#         "/root/TAC/data/rgbd_data/diode_clean_resize/train/{}".format(split)
+#         "/root/TAC/data/rgbd_data/scenenet_resize/train/{}".format(i)
 #     )
 #     _C.DATA.RGBD.scale_value.append(1000.0)
-#     _C.DATA.RGBD.time_factor.append(36.60)  # 4 images
+#     _C.DATA.RGBD.time_factor.append(278.17)  # 11 images
+## add diode
+for split in ["indoors", "outdoor"]:
+    _C.DATA.RGBD.data_path.append(
+        "/root/TAC/data/rgbd_data/diode_clean_resize/train/{}".format(split)
+    )
+    _C.DATA.RGBD.scale_value.append(1000.0)
+    _C.DATA.RGBD.time_factor.append(36.60)  # 4 images
 ## add tum
-# _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/tumrgbd_clean_resize/train")
-# _C.DATA.RGBD.scale_value.append(5000.0)
-# _C.DATA.RGBD.time_factor.append(1416.31)  # 42 images half the original value
-
+_C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/tumrgbd_clean_resize/train")
+_C.DATA.RGBD.scale_value.append(5000.0)
+_C.DATA.RGBD.time_factor.append(1416.31)  # 42 images half the original value
+## add outdoor, only for outdoor tune
+# _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/outdoor_train/diml_resize/outdoor")
+# _C.DATA.RGBD.scale_value.append(1000.0)
+# _C.DATA.RGBD.time_factor.append(1.0)
+# _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/outdoor_train/rgbd1k_resize/outdoor")
+# _C.DATA.RGBD.scale_value.append(200.0)
+# _C.DATA.RGBD.time_factor.append(1.0)
 
 #########################################################################################
 # val data
@@ -90,7 +96,7 @@ for i in range(16): # full size is 17
 _C.DATA.RGBD.EVAL = CN()
 _C.DATA.RGBD.EVAL.is_resized = True
 _C.DATA.RGBD.EVAL.shuffle = "noshuffle"
-_C.DATA.RGBD.EVAL.block_size = 8
+_C.DATA.RGBD.EVAL.block_size = 10
 _C.DATA.RGBD.EVAL.seed = 25
 _C.DATA.RGBD.EVAL.data_path = []
 _C.DATA.RGBD.EVAL.scale_value = []
@@ -117,6 +123,10 @@ _C.DATA.RGBD.EVAL.time_factor.append(36.60)
 _C.DATA.RGBD.EVAL.data_path.append("/root/TAC/data/rgbd_data/pretrain_val/tum_val")
 _C.DATA.RGBD.EVAL.scale_value.append(5000.0)
 _C.DATA.RGBD.EVAL.time_factor.append(1416.31)
+## add scannet, only for out-of-domain
+# _C.DATA.RGBD.EVAL.data_path.append('/root/TAC/data/rgbd_data/pretrain_val/scannet_val')
+# _C.DATA.RGBD.EVAL.scale_value.append(1000.0)
+# _C.DATA.RGBD.EVAL.time_factor.append(1)
 
 _C.MODEL = CN()
 _C.MODEL.name = "TAC"

@@ -1,5 +1,6 @@
 import argparse
-import os, sys
+import os
+import sys
 from multiprocessing import Process
 
 from SensorData import SensorData
@@ -19,6 +20,7 @@ from SensorData import SensorData
 
 filename = ""
 
+
 def extract(ids):
     print(ids)
     for id in ids:
@@ -29,15 +31,16 @@ def extract(ids):
         except OSError:
             pass
         sd = SensorData(filename)
-        sd.export_depth_images(os.path.join(output_path, 'depth'))
-        sd.export_color_images(os.path.join(output_path, 'rgb'))
+        sd.export_depth_images(os.path.join(output_path, "depth"))
+        sd.export_color_images(os.path.join(output_path, "rgb"))
 
-if __name__ == '__main__':
-    with open("/root/TAC/scripts/scannet_data/scannetv2_val.txt","r") as f:
-        id_list = [v.replace("\n","") for v in f.readlines()]
+
+if __name__ == "__main__":
+    with open("/root/TAC/scripts/scannet_data/scannetv2_val.txt", "r") as f:
+        id_list = [v.replace("\n", "") for v in f.readlines()]
     M = 100
     N = 1
-    id_list = id_list[:2*M]
+    id_list = id_list[: 2 * M]
     id_list = ["scene0660_00"]
     p_list = []
     for i in range(N):

@@ -2,6 +2,7 @@ from multiprocessing import Process
 import os
 import wget
 
+
 def download(ids):
     for id in ids:
         url = "http://kaldir.vc.in.tum.de/scannet/v1/scans/{}/{}.sens".format(id, id)
@@ -10,9 +11,10 @@ def download(ids):
         os.makedirs("/root/TAC/data/scannet/scans/{}/".format(id), exist_ok=True)
         wget.download(url, out=outpath)
 
-if __name__ == '__main__':
-    with open("/root/TAC/scripts/scannet_data/scannetv2_val.txt","r") as f:
-        id_list = [v.replace("\n","") for v in f.readlines()]
+
+if __name__ == "__main__":
+    with open("/root/TAC/scripts/scannet_data/scannetv2_val.txt", "r") as f:
+        id_list = [v.replace("\n", "") for v in f.readlines()]
     M = 100
     N = 1
     id_list = id_list[:M]

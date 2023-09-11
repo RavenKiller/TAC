@@ -1,0 +1,24 @@
+DEVICE: [0]
+TENSORBOARD_DIR: data/tensorboard_dirs/v2_tac_outdoortune
+CHECKPOINT_DIR: data/checkpoints/v2_tac_outdoortune
+TRAINER:
+  batch_size: 128
+  epochs: 1
+  adam_epsilon: 1e-8
+  weight_decay: 1e-3
+  learning_rate: 2e-5
+MODEL:
+  loss_type: TAC
+  init_time_scale: 0.083333333333333333333333333333333
+  load_from_ckpt: True
+  ckpt_path: data/checkpoints/tacv2_tac/ckpt.DepthCLIP.00.pth
+  IMAGE:
+    model_name: openai/clip-vit-base-patch32
+    trainable: True
+DATA:
+  RGBD:
+    block_size: 8
+    data_path: ['/root/TAC/data/rgbd_data/outdoor_val/diml_resize/outdoor','/root/TAC/data/rgbd_data/outdoor_val/rgbd1k_resize/outdoor']
+    scale_value: [1000.0, 200.0]
+    time_factor: [1.0,1.0]
+    
