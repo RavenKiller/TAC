@@ -6,6 +6,7 @@ from transformers import T5TokenizerFast, T5ForConditionalGeneration
 from PIL import Image
 import requests
 from transformers import CLIPImageProcessor, CLIPVisionModel, CLIPVisionConfig
+from transformers import ViTConfig, ViTImageProcessor, ViTModel
 from config.default import get_config
 from models.base_model import BaseModel
 from common.registry import registry
@@ -45,6 +46,13 @@ class TAC(BaseModel):
             )
             self.depth_processor = CLIPImageProcessor.from_pretrained(
                 config.MODEL.DEPTH.model_name
+            )
+        elif config.MODEL.bottleneck == "vits":
+            self.depth_transformer = ViTModel.from_pretrained(
+                "WinKawaks/vit-small-patch16-224"
+            )
+            self.depth_processor = CLIPImageProcessor.from_pretrained(
+                "WinKawaks/vit-small-patch16-224"
             )
         elif config.MODEL.bottleneck == "vitl":
             cfg = CLIPVisionConfig.from_pretrained(config.MODEL.DEPTH.model_name)
@@ -141,7 +149,7 @@ class TAC(BaseModel):
         self.temperature.data.clamp_(-2, 5)
         self.time_scale.data.clamp_(1 / 20, 1)
 
-    def forward(self, batch):
+    def forward(self, batch, **kwargs):
         image_embeddings = self.embed_image(batch["image"])
         depth_embeddings = self.embed_depth(batch["depth"])
         bs = image_embeddings.shape[0]

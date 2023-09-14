@@ -1,0 +1,19 @@
+DEVICE: [0,1]
+TENSORBOARD_DIR: data/tensorboard_dirs/vit_large
+CHECKPOINT_DIR: data/checkpoints/vit_large
+TRAINER:
+  batch_size: 128
+  epochs: 1
+  adam_epsilon: 1e-8
+  weight_decay: 1e-3
+  learning_rate: 2e-5
+MODEL:
+  loss_type: TAC
+  bottleneck: vits
+  init_time_scale: 0.083333333333333333333333333333333
+  DEPTH:
+    trainable: True
+    feature_dim: 1024
+DATA:
+  RGBD:
+    block_size: 8

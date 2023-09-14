@@ -21,6 +21,7 @@ _C.LOG_DIR = "debug"
 _C.ENVIRONMENTS = ["TOKENIZERS_PARALLELISM", "false"]
 _C.DEBUG = True  # If True: reduce training and evaluation samples
 _C.SEED = 0
+_C.FP16 = False
 
 
 _C.TRAINER = CN()
@@ -53,23 +54,23 @@ _C.DATA.RGBD.is_resized = True
 _C.DATA.RGBD.block_size = 8
 
 ## add hm3d
-# for i in range(30): # fullsize is 52
-#     _C.DATA.RGBD.data_path.append(
-#         "/root/TAC/data/rgbd_data/hm3d_rgbd/train/{}".format(i)
-#     )
-#     _C.DATA.RGBD.scale_value.append(1000.0)
-#     _C.DATA.RGBD.time_factor.append(87.56)  # 9 images
+for i in range(40):  # fullsize is 52
+    _C.DATA.RGBD.data_path.append(
+        "/root/TAC/data/rgbd_data/hm3d_rgbd/train/{}".format(i)
+    )
+    _C.DATA.RGBD.scale_value.append(1000.0)
+    _C.DATA.RGBD.time_factor.append(87.56)  # 9 images
 ## add sun3d
-# _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/sun3d/train")
-# _C.DATA.RGBD.scale_value.append(8000.0)
-# _C.DATA.RGBD.time_factor.append(42.96)  # 43 images, half the original value
+_C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/sun3d/train")
+_C.DATA.RGBD.scale_value.append(8000.0)
+_C.DATA.RGBD.time_factor.append(42.96)  # 43 images, half the original value
 ## add scenenet
-# for i in range(16): # full size is 17
-#     _C.DATA.RGBD.data_path.append(
-#         "/root/TAC/data/rgbd_data/scenenet_resize/train/{}".format(i)
-#     )
-#     _C.DATA.RGBD.scale_value.append(1000.0)
-#     _C.DATA.RGBD.time_factor.append(278.17)  # 11 images
+for i in range(12):  # full size is 17
+    _C.DATA.RGBD.data_path.append(
+        "/root/TAC/data/rgbd_data/scenenet_resize/train/{}".format(i)
+    )
+    _C.DATA.RGBD.scale_value.append(1000.0)
+    _C.DATA.RGBD.time_factor.append(278.17)  # 11 images
 ## add diode
 for split in ["indoors", "outdoor"]:
     _C.DATA.RGBD.data_path.append(

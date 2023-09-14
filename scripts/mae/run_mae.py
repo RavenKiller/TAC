@@ -41,6 +41,7 @@ from transformers import (
     ViTMAEConfig,
     ViTMAEForPreTraining,
 )
+from transformers.training_args import ParallelMode
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
@@ -125,7 +126,7 @@ class ViTMAEForPreTrainingCrossModal(ViTMAEForPreTraining):
             decoder_outputs.logits
         )  # shape (batch_size, num_patches, patch_size*patch_size*num_channels)
 
-        loss = self.forward_loss(label, logits, mask)
+        loss = self.forward_loss(label, logits, mask.detach())
 
         if not return_dict:
             output = (logits, mask, ids_restore) + outputs[2:]
@@ -134,7 +135,7 @@ class ViTMAEForPreTrainingCrossModal(ViTMAEForPreTraining):
         return ViTMAEForPreTrainingOutput(
             loss=loss,
             logits=logits,
-            mask=mask,
+            mask=mask.detach(),
             ids_restore=ids_restore,
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
@@ -154,12 +155,14 @@ class CustomTrainingArguments(TrainingArguments):
 def collate_fn_rgb2depth(examples):
     pixel_values = torch.stack([example["image"] for example in examples])
     target = torch.stack([example["depth"] for example in examples])
+    del examples
     return {"pixel_values": pixel_values, "label": target}
 
 
 def collate_fn_depth2rgb(examples):
     pixel_values = torch.stack([example["depth"] for example in examples])
     target = torch.stack([example["image"] for example in examples])
+    del examples
     return {"pixel_values": pixel_values, "label": target}
 
 
@@ -190,19 +193,29 @@ def main():
     config = get_config(args.config, args.opts)
     train_ds = RGBDDataset(config)
     val_ds = RGBDDataset(config, mode="eval")
-
+    os.makedirs(
+        "/root/TAC/data/checkpoints/mae{}/".format(config.MODEL.loss_type),
+        exist_ok=True,
+    )
     training_args = CustomTrainingArguments(
-        "/root/TAC/data/checkpoints/mae/",
-        logging_steps=100,
-        per_device_train_batch_size=128,
+        "/root/TAC/data/checkpoints/mae{}/".format(config.MODEL.loss_type),
+        logging_steps=5000,
+        per_device_train_batch_size=config.TRAINER.batch_size,
         num_train_epochs=1,
         dataloader_num_workers=6,
-        per_device_eval_batch_size=128,
+        per_device_eval_batch_size=config.TRAINER.batch_size,
+        save_steps=5000,
+        save_total_limit=3,
+        fp16=True,
+        prediction_loss_only=True,
+        save_strategy="steps",
+        remove_unused_columns=False,
+        report_to="none",
+        resume_from_checkpoint=True,
     )
-    training_args.remove_unused_columns = False
-    training_args.label_names = "target"
+    training_args.label_names = ["target"]
     training_args.do_train = True
-    training_args.do_eval = True
+    training_args.do_eval = False
     # training_args = CustomTrainingArguments(output_dir="./outputs1/")
     # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
     # information sent is the one passed as arguments along with your Python/PyTorch versions.
@@ -231,6 +244,27 @@ def main():
     )
     logger.info(f"Training/evaluation parameters {training_args}")
 
+    # Detecting last checkpoint.
+    last_checkpoint = None
+    if (
+        os.path.isdir(training_args.output_dir)
+        and training_args.do_train
+        and not training_args.overwrite_output_dir
+    ):
+        last_checkpoint = get_last_checkpoint(training_args.output_dir)
+        if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
+            raise ValueError(
+                f"Output directory ({training_args.output_dir}) already exists and is not empty. "
+                "Use --overwrite_output_dir to overcome."
+            )
+        elif (
+            last_checkpoint is not None and training_args.resume_from_checkpoint is None
+        ):
+            logger.info(
+                f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
+                "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
+            )
+
     # Initialize our dataset.
     ds = {"train": train_ds, "validation": val_ds}
 
@@ -238,12 +272,14 @@ def main():
     config_kwargs = {
         "cache_dir": None,
         "revision": "main",
-        "token": None,
+        # "token": None,
     }
-    config = ViTMAEConfig.from_pretrained("facebook/vit-mae-base", **config_kwargs)
+    vitmae_config = ViTMAEConfig.from_pretrained(
+        "facebook/vit-mae-base", **config_kwargs
+    )
 
     # adapt config
-    config.update(
+    vitmae_config.update(
         {
             "mask_ratio": 0.75,
             "norm_pix_loss": True,
@@ -257,7 +293,7 @@ def main():
 
     # create model
     model = ViTMAEForPreTrainingCrossModal.from_pretrained(
-        "facebook/vit-mae-base", config=config, **config_kwargs
+        "facebook/vit-mae-base", config=vitmae_config, **config_kwargs
     )
 
     # Compute absolute learning rate
@@ -272,13 +308,17 @@ def main():
         )
 
     # Initialize our trainer
+    if config.MODEL.loss_type == "RGB2DEPTH":
+        cfn = collate_fn_rgb2depth
+    else:
+        cfn = collate_fn_depth2rgb
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=ds["train"] if training_args.do_train else None,
         eval_dataset=ds["validation"] if training_args.do_eval else None,
         tokenizer=image_processor,
-        data_collator=collate_fn_rgb2depth,
+        data_collator=cfn,
     )
 
     # Training
@@ -286,6 +326,8 @@ def main():
         checkpoint = None
         if training_args.resume_from_checkpoint is not None:
             checkpoint = training_args.resume_from_checkpoint
+        elif last_checkpoint is not None:
+            checkpoint = last_checkpoint
         train_result = trainer.train(resume_from_checkpoint=checkpoint)
         trainer.save_model()
         trainer.log_metrics("train", train_result.metrics)

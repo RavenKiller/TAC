@@ -67,9 +67,7 @@ class RGBDDataset(Dataset):
                 self.depth_scales.extend([self.scale_value[i]] * len(depth_files))
                 self.time_factors.extend([self.time_factor[i]] * len(depth_files))
         logger.debug(f"Sample number: {len(self.image_samples)}")
-        self.processor = ViTImageProcessor.from_pretrained(
-            config.MODEL.IMAGE.model_name
-        )
+        self.processor = ViTImageProcessor.from_pretrained("facebook/vit-mae-base")
 
     def read_image(self, image_path):
         """Return a image tensor from image_path"""

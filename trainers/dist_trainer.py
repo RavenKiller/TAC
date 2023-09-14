@@ -16,6 +16,7 @@ from common.utils import get_checkpoint_id, poll_checkpoint_folder
 import tqdm
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.cuda.amp import autocast
+from torch.cuda.amp.grad_scaler import GradScaler
 
 import torch.distributed as dist
 import transformers
@@ -39,6 +40,8 @@ class DistTrainer(BaseTrainer):
             logger.debug(f"Config: {config}")
             logger.debug(f"Random seed: {config.SEED}")
         # self.initialize()
+        self.use_amp = self.config.FP16
+        self.scaler = GradScaler(enabled=self.use_amp)
 
     @property
     def _is_distributed(self):
@@ -189,11 +192,21 @@ class DistTrainer(BaseTrainer):
                     k: (v.to(self.device_id) if isinstance(v, torch.Tensor) else v)
                     for k, v in batch.items()
                 }
-                outputs = self.model(batch)
-                loss = outputs["loss"]
-                self.optimizer.zero_grad()
-                loss.backward()
-                self.optimizer.step()
+
+                if self.use_amp:
+                    with autocast(dtype=torch.float16, enabled=self.use_amp):
+                        outputs = self.model(batch, require_info=False)
+                        loss = outputs["loss"]
+                    self.optimizer.zero_grad()
+                    self.scaler.scale(loss).backward()
+                    self.scaler.step(self.optimizer)
+                    self.scaler.update()
+                else:
+                    outputs = self.model(batch, require_info=False)
+                    loss = outputs["loss"]
+                    self.optimizer.zero_grad()
+                    loss.backward()
+                    self.optimizer.step()
                 if self._is_distributed:
                     self.model.module.clamp_param()
                 else:

@@ -1,23 +1,23 @@
 
 seed=25
 fd=v2
-cfg=v2_tac_outdoortune
+cfg=v2_mae
 
-# python run_dist.py \
-#     --mode eval \
-#     --config config/${fd}/${cfg}.yaml \
-#     DATA.RGBD.EVAL.shuffle non-shuffle \
-#     EVAL_PREFIX noshuffle 
-# python run_dist.py \
-#     --mode eval \
-#     --config config/${fd}/${cfg}.yaml \
-#     DATA.RGBD.EVAL.shuffle shuffle \
-#     EVAL_PREFIX shuffle 
-# python run_dist.py \
-#     --mode eval \
-#     --config config/${fd}/${cfg}.yaml \
-#     DATA.RGBD.EVAL.shuffle block-shuffle \
-#     EVAL_PREFIX bshuffle 
+python run_dist.py \
+    --mode eval \
+    --config config/${fd}/${cfg}.yaml \
+    DATA.RGBD.EVAL.shuffle non-shuffle \
+    EVAL_PREFIX noshuffle 
+python run_dist.py \
+    --mode eval \
+    --config config/${fd}/${cfg}.yaml \
+    DATA.RGBD.EVAL.shuffle shuffle \
+    EVAL_PREFIX shuffle 
+python run_dist.py \
+    --mode eval \
+    --config config/${fd}/${cfg}.yaml \
+    DATA.RGBD.EVAL.shuffle block-shuffle \
+    EVAL_PREFIX bshuffle 
 
 # for i in 0 1 2 3 4
 # do

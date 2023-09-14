@@ -1,6 +1,6 @@
-DEVICE: [0]
-TENSORBOARD_DIR: data/tensorboard_dirs/tacv2_mae
-CHECKPOINT_DIR: data/checkpoints/tacv2_mae
+DEVICE: [0,1]
+TENSORBOARD_DIR: data/tensorboard_dirs/tacv2_mae_tune
+CHECKPOINT_DIR: data/checkpoints/tacv2_mae_tune
 FP16: True
 TRAINER:
   batch_size: 128

@@ -2,18 +2,7 @@ import torch
 import sys
 import os
 import math
-from transformers import T5TokenizerFast, T5ForConditionalGeneration
-from PIL import Image
-import requests
-from transformers import CLIPImageProcessor, CLIPVisionModel, CLIPVisionConfig
-from config.default import get_config
-from models.base_model import BaseModel
-from common.registry import registry
-from common.logger import logger
-from common.utils import cross_entropy_focal
-from models.encoders.clip_encoders import CLIPResEncoder
 import torch.nn.functional as F
-from torch.cuda.amp import autocast
 from transformers import (
     HfArgumentParser,
     Trainer,
@@ -25,6 +14,9 @@ from transformers import (
 )
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config.default import get_config  # noqa: E402
+from models.base_model import BaseModel  # noqa: E402
+from common.registry import registry  # noqa: E402
 
 
 @registry.register_model
@@ -38,7 +30,7 @@ class MAE(BaseModel):
         self.image_transformer = ViTMAEModel.from_pretrained(
             config.MODEL.IMAGE.model_name
         )
-        self.image_processor = ViTMAEModel.from_pretrained(
+        self.image_processor = ViTImageProcessor.from_pretrained(
             config.MODEL.IMAGE.model_name
         )
         self.image_feature_dim = config.MODEL.IMAGE.feature_dim
@@ -51,7 +43,7 @@ class MAE(BaseModel):
         self.depth_transformer = ViTMAEModel.from_pretrained(
             config.MODEL.DEPTH.model_name
         )
-        self.depth_processor = ViTMAEModel.from_pretrained(
+        self.depth_processor = ViTImageProcessor.from_pretrained(
             config.MODEL.DEPTH.model_name
         )
         self.depth_feature_dim = config.MODEL.DEPTH.feature_dim
