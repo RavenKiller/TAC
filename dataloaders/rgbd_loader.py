@@ -8,7 +8,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from transformers import T5TokenizerFast
-from transformers import CLIPImageProcessor
+from transformers import CLIPImageProcessor, ViTImageProcessor
 from common.registry import registry
 from dataloaders.base_loader import BaseLoader
 from dataloaders.base_loader import BlockShuffleDistSampler
@@ -145,23 +145,37 @@ class RGBDDataset(Dataset):
                 self.time_factors.extend([self.time_factor[i]] * len(depth_files))
         logger.debug(f"Sample number: {len(self.image_samples)}")
         if processor is None:
-            self.processor = CLIPImageProcessor.from_pretrained(
-                config.MODEL.IMAGE.model_name
-            )
+            if self.config.MODEL.bottleneck == "vits":
+                self.image_processor = CLIPImageProcessor.from_pretrained(
+                    "openai/clip-vit-base-patch32"
+                )
+                self.depth_processor = CLIPImageProcessor.from_pretrained(
+                    "openai/clip-vit-base-patch32",
+                    image_mean=[0.5, 0.5, 0.5],
+                    image_std=[0.5, 0.5, 0.5],
+                )
+            else:
+                self.image_processor = CLIPImageProcessor.from_pretrained(
+                    config.MODEL.IMAGE.model_name
+                )
+                self.depth_processor = CLIPImageProcessor.from_pretrained(
+                    config.MODEL.DEPTH.model_name
+                )
         else:
-            self.processor = processor
+            self.image_processor = processor
+            self.depth_processor = processor
 
     def read_image(self, image_path):
         """Return a image tensor from image_path"""
         image = Image.open(image_path).convert("RGB")
         if self.config.MODEL.name != "EDGE":
             if self.is_resized:
-                image = self.processor(
+                image = self.image_processor(
                     image, do_resize=False, do_center_crop=False, return_tensors="pt"
                 ).pixel_values.squeeze()
                 # test2 = self.processor(image, return_tensors="pt").pixel_values.squeeze()
             else:
-                image = self.processor(
+                image = self.image_processor(
                     image, return_tensors="pt"
                 ).pixel_values.squeeze()
         else:
@@ -178,7 +192,7 @@ class RGBDDataset(Dataset):
         depth = np.expand_dims(depth, axis=2).repeat(3, axis=2)
         if self.config.MODEL.name != "EDGE":
             if self.is_resized:
-                depth = self.processor(
+                depth = self.depth_processor(
                     depth,
                     do_resize=False,
                     do_center_crop=False,
@@ -187,7 +201,7 @@ class RGBDDataset(Dataset):
                 ).pixel_values.squeeze()
                 # test2 = self.processor(depth, return_tensors="pt").pixel_values.squeeze() # numeric error because of [0,1]->[0,255]->[0,1]
             else:
-                depth = self.processor(
+                depth = self.depth_processor(
                     depth, return_tensors="pt"
                 ).pixel_values.squeeze()
         else:

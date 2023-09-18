@@ -1,16 +1,21 @@
 DEVICE: [0,1]
 TENSORBOARD_DIR: data/tensorboard_dirs/tacv2_mae_tune
 CHECKPOINT_DIR: data/checkpoints/tacv2_mae_tune
-FP16: True
 TRAINER:
   batch_size: 128
   epochs: 1
+  adam_epsilon: 1e-8
+  weight_decay: 1e-3
+  learning_rate: 2e-5
 MODEL:
   name: MAE
-  loss_type: RGB2DEPTH
+  init_time_scale: 0.083333333333333333333333333333333
+  loss_type: TAC
+  load_from_ckpt: True
+  ckpt_path: data/checkpoints/tacv2_mae/ckpt.MAE.00.pth
   IMAGE:
-    model_name: /root/TAC/data/checkpoints/maeRGB2DEPTH
+    model_name: facebook/vit-mae-base
     trainable: False
   DEPTH:
-    model_name: /root/TAC/data/checkpoints/maeDEPTH2RGB
+    model_name: facebook/vit-mae-base
     trainable: False

@@ -13,7 +13,7 @@ CONFIG_FILE_SEPARATOR = ","
 # EXPERIMENT CONFIG
 # ----------------------------------------------------------------------------
 _C = CN()
-_C.DEVICE = [0, 1]
+_C.DEVICE = [0]
 _C.TENSORBOARD_DIR = "data/tensorboard_dirs/tac"
 _C.CHECKPOINT_DIR = "data/checkpoints/tac"
 _C.EVAL_PREFIX = "valseen"
@@ -54,7 +54,7 @@ _C.DATA.RGBD.is_resized = True
 _C.DATA.RGBD.block_size = 8
 
 ## add hm3d
-for i in range(40):  # fullsize is 52
+for i in range(48):  # fullsize is 52
     _C.DATA.RGBD.data_path.append(
         "/root/TAC/data/rgbd_data/hm3d_rgbd/train/{}".format(i)
     )
@@ -65,7 +65,7 @@ _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/sun3d/train")
 _C.DATA.RGBD.scale_value.append(8000.0)
 _C.DATA.RGBD.time_factor.append(42.96)  # 43 images, half the original value
 ## add scenenet
-for i in range(12):  # full size is 17
+for i in range(17):  # full size is 17
     _C.DATA.RGBD.data_path.append(
         "/root/TAC/data/rgbd_data/scenenet_resize/train/{}".format(i)
     )

@@ -89,9 +89,12 @@ class MAE(BaseModel):
             outputs = self.depth_fc(outputs)
         return outputs
 
+    def clamp_param(self):
+        pass
+
     def forward(self, batch):
-        image_embeddings = self.embed_image(batch["image"], fc=False)
-        depth_embeddings = self.embed_depth(batch["depth"], fc=False)
+        image_embeddings = self.embed_image(batch["image"], fc=True)
+        depth_embeddings = self.embed_depth(batch["depth"], fc=True)
         bs = image_embeddings.shape[0]
         image_embeddings = F.normalize(image_embeddings)
         depth_embeddings = F.normalize(depth_embeddings)

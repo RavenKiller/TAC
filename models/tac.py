@@ -15,8 +15,21 @@ from common.utils import cross_entropy_focal
 from models.encoders.clip_encoders import CLIPResEncoder
 import torch.nn.functional as F
 from torch.cuda.amp import autocast
+import timm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+class WrapModule(torch.nn.Module):
+    def __init__(self, model) -> None:
+        super().__init__()
+        self.model = model
+
+    def forward(self, pixel_values):
+        res = self.model(pixel_values)
+        if len(res.shape) == 2:
+            res = res.unsqueeze(1)
+        return {"last_hidden_state": res}
 
 
 @registry.register_model
@@ -48,11 +61,18 @@ class TAC(BaseModel):
                 config.MODEL.DEPTH.model_name
             )
         elif config.MODEL.bottleneck == "vits":
-            self.depth_transformer = ViTModel.from_pretrained(
-                "WinKawaks/vit-small-patch16-224"
-            )
-            self.depth_processor = CLIPImageProcessor.from_pretrained(
-                "WinKawaks/vit-small-patch16-224"
+            # self.depth_transformer = ViTModel.from_pretrained(
+            #     "timm/vit_small_patch32_224.augreg_in21k_ft_in1k"
+            # )
+            # self.depth_processor = CLIPImageProcessor.from_pretrained(
+            #     "timm/vit_small_patch32_224.augreg_in21k_ft_in1k"
+            # )
+            self.depth_transformer = WrapModule(
+                timm.create_model(
+                    "vit_small_patch32_224.augreg_in21k_ft_in1k",
+                    pretrained=True,
+                    num_classes=0,  # remove classifier nn.Linear
+                )
             )
         elif config.MODEL.bottleneck == "vitl":
             cfg = CLIPVisionConfig.from_pretrained(config.MODEL.DEPTH.model_name)
@@ -170,7 +190,7 @@ class TAC(BaseModel):
             d2i_prediction = logits.argmax(dim=0)
             predictions = torch.cat([i2d_prediction, d2i_prediction], dim=0)
             targets = torch.cat([targets, targets], dim=0)
-        elif self.config.MODEL.loss_type == "TAC":  # clip loss with soft label
+        elif self.config.MODEL.loss_type == "TAC":  # tac loss
             # calculate loss
             image_embeddings = F.normalize(image_embeddings)
             depth_embeddings = F.normalize(depth_embeddings)
@@ -199,6 +219,48 @@ class TAC(BaseModel):
             # TODO: different curves for gt. the current is gaussian + linear prob
             loss_i2d = F.cross_entropy(logits, F.normalize(gt_mat, p=1))
             loss_d2i = F.cross_entropy(logits.T, F.normalize(gt_mat.T, p=1))
+            loss = (loss_i2d + loss_d2i) / 2
+
+            # for evaluation
+            with torch.no_grad():
+                i2d_prediction = logits.argmax(dim=1)
+                d2i_prediction = logits.argmax(dim=0)
+                predictions = torch.cat([i2d_prediction, d2i_prediction], dim=0)
+                targets = torch.cat([targets, targets], dim=0)
+        elif (
+            self.config.MODEL.loss_type == "MULI_LABEL"
+        ):  # soft label to multi hard positive label
+            # calculate loss
+            image_embeddings = F.normalize(image_embeddings)
+            depth_embeddings = F.normalize(depth_embeddings)
+            logits = torch.matmul(image_embeddings, depth_embeddings.T) * torch.exp(
+                self.temperature
+            )
+            episode = batch["episode"].float()
+            index = batch["index"].float()
+            # time factor is 3sigma
+            with torch.no_grad():
+                targets = torch.arange(bs).to(image_embeddings.device)
+                time_factor = batch["time_factor"].float() * self.time_scale
+                episode_mat = episode.unsqueeze(1).repeat(1, bs)
+                index_mat = index.unsqueeze(1).repeat(1, bs)
+                sigma_mat = time_factor.unsqueeze(1).repeat(1, bs)
+                gt_mat = -(((index_mat - index_mat.T) / sigma_mat) ** 2) / 2
+                gt_mat = torch.exp(gt_mat)
+                if self.config.MODEL.use_gaussian_coef:
+                    gt_mat = gt_mat / (math.sqrt(2 * math.pi) * sigma_mat)
+                # gt_mat[episode_mat == episode_mat.T] = gt_mat_[episode_mat == episode_mat.T]
+                targets_mat = targets.unsqueeze(1).repeat(1, bs)
+                gt_mat[
+                    (targets_mat / self.block_size).int()
+                    != (targets_mat.T / self.block_size).int()
+                ] = 0
+            # half threshold
+            gt_mat[gt_mat >= 0.5] = 1
+            gt_mat[gt_mat < 0.5] = 0
+            # TODO: different curves for gt. the current is gaussian + linear prob
+            loss_i2d = F.multilabel_soft_margin_loss(logits, gt_mat)
+            loss_d2i = F.multilabel_soft_margin_loss(logits.T, gt_mat.T)
             loss = (loss_i2d + loss_d2i) / 2
 
             # for evaluation

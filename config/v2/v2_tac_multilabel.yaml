@@ -1,6 +1,6 @@
 DEVICE: [0]
-TENSORBOARD_DIR: data/tensorboard_dirs/vit_small
-CHECKPOINT_DIR: data/checkpoints/vit_small
+TENSORBOARD_DIR: data/tensorboard_dirs/v2_tac_multilabel
+CHECKPOINT_DIR: data/checkpoints/v2_tac_multilabel
 TRAINER:
   batch_size: 128
   epochs: 1
@@ -8,12 +8,12 @@ TRAINER:
   weight_decay: 1e-3
   learning_rate: 2e-5
 MODEL:
-  loss_type: TAC
-  bottleneck: vits
+  loss_type: MULI_LABEL
   init_time_scale: 0.083333333333333333333333333333333
-  DEPTH:
+  IMAGE:
+    model_name: openai/clip-vit-base-patch32
     trainable: True
-    feature_dim: 384
 DATA:
   RGBD:
     block_size: 8
+    

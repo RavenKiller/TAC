@@ -1,1 +1,1 @@
-torchrun --standalone --nnodes 1 --nproc_per_node 2 run_dist.py --mode train --config config/v2/v2_tac.yaml DEVICE '[0,1]'
+torchrun --standalone --nnodes 1 --nproc_per_node 2 run_dist.py --mode train --config config/bottlenecks/vit_small.yaml DEVICE '[0,1]'
