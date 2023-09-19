@@ -64,12 +64,13 @@ class DistTrainer(BaseTrainer):
             logger.debug("resume from {}".format(self.config.MODEL.ckpt_path))
             ckpt = torch.load(self.config.MODEL.ckpt_path)
             self.model.load_state_dict(ckpt["state_dict"])
-            if "optimzier" in ckpt:
-                optimizer_state = ckpt["optimizer"]
-            if "scheduler" in ckpt:
-                scheduler_state = ckpt["scheduler"]
-            if "steps" in ckpt:
-                ignore_steps = ckpt["steps"]
+            if mode == "train":
+                if "optimzier" in ckpt:
+                    optimizer_state = ckpt["optimizer"]
+                if "scheduler" in ckpt:
+                    scheduler_state = ckpt["scheduler"]
+                if "steps" in ckpt:
+                    ignore_steps = ckpt["steps"]
         self.model.to(self.device_id)
         if self._is_distributed and mode == "train":
             self.model = DDP(
@@ -117,6 +118,7 @@ class DistTrainer(BaseTrainer):
             self.config,
             mode=mode,
             num_workers=6,
+            ignore_steps=ignore_steps,
         )
         ## Folder preparation
         if mode == "train":
@@ -134,14 +136,12 @@ class DistTrainer(BaseTrainer):
                 os.path.join(self.config.CHECKPOINT_DIR, "evals"), exist_ok=True
             )
         ## Resume
-        if mode == "train":
-            logger.debug(optimizer_state)
-            if optimizer_state is not None:
-                self.optimizer.load_state_dict(optimizer_state)
-            if scheduler_state is not None:
-                self.scheduler.load_state_dict(scheduler_state)
-            if ignore_steps is not None:
-                self.ignore_steps = ignore_steps
+        if optimizer_state is not None:
+            self.optimizer.load_state_dict(optimizer_state)
+        if scheduler_state is not None:
+            self.scheduler.load_state_dict(scheduler_state)
+        if ignore_steps is not None:
+            self.ignore_steps = ignore_steps
 
     def save_checkpoint(
         self, file_name: str, checkpoint_dir=None, mean_loss=-1, steps=0
@@ -212,7 +212,7 @@ class DistTrainer(BaseTrainer):
                 else self.loader
             )
             for batch in batch_bar:
-                # skip several steps
+                # Skip batch
                 if iter_num <= self.ignore_steps:
                     iter_num += 1
                     continue

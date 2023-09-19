@@ -18,9 +18,11 @@ class BaseLoader(DataLoader):
 
 
 class BlockShuffleDistSampler(DistributedSampler):
-    def __init__(self, block_size=1, **kwargs):
+    def __init__(self, block_size=1, ignore_steps=None, **kwargs):
         super().__init__(**kwargs)
         self.block_size = block_size
+        self.ignore_steps = ignore_steps
+        self.batch_size = 128
 
     def __iter__(self) -> Iterator[T_co]:
         if self.shuffle:
@@ -54,5 +56,13 @@ class BlockShuffleDistSampler(DistributedSampler):
         # subsample
         indices = indices[self.rank : self.total_size : self.num_replicas]
         assert len(indices) == self.num_samples
-
+        # Skip batch
+        if self.ignore_steps is not None and self.ignore_steps >= 0:
+            for i in range(
+                min(
+                    len(indices),
+                    (self.ignore_steps + 1) * self.batch_size // self.num_replicas,
+                )
+            ):
+                indices[i] = -100
         return iter(indices)

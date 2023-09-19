@@ -21,6 +21,7 @@ from natsort import natsorted
 
 MIN_DEPTH = 0.0
 MAX_DEPTH = 65.535
+SKIP_IDX = -100
 
 
 def list_sort(data_path, onlydigit=True):
@@ -39,7 +40,7 @@ class RGBDLoader(BaseLoader):
 
 @registry.register_dataloader
 class DistRGBDLoader(BaseLoader):
-    def __init__(self, config, mode="train", *args, **kwargs):
+    def __init__(self, config, mode="train", ignore_steps=None, *args, **kwargs):
         if mode == "train":  # block shuffle indicies
             ds = RGBDDataset(config, mode=mode)
             if len(config.DEVICE) > 1:  # distributed
@@ -53,7 +54,7 @@ class DistRGBDLoader(BaseLoader):
                     config.DATA.RGBD.block_size, config.TRAINER.batch_size // (2 * ws)
                 )
                 kwargs["sampler"] = BlockShuffleDistSampler(
-                    dataset=ds, block_size=block_size
+                    dataset=ds, block_size=block_size, ignore_steps=ignore_steps
                 )
             else:  # single
                 kwargs["shuffle"] = False
@@ -67,6 +68,7 @@ class DistRGBDLoader(BaseLoader):
                     block_size=block_size,
                     num_replicas=1,
                     rank=int(os.environ["LOCAL_RANK"]),
+                    ignore_steps=ignore_steps,
                 )
         elif mode == "eval":
             ds = RGBDDataset(config, mode=mode)
@@ -212,6 +214,9 @@ class RGBDDataset(Dataset):
         return len(self.image_samples)
 
     def __getitem__(self, i):
+        # Skip batch
+        if i < 0:
+            return {}
         image_path = self.image_samples[i]
         depth_path = self.depth_samples[i]
         # print(image_path, depth_path)
