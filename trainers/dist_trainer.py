@@ -43,7 +43,7 @@ class DistTrainer(BaseTrainer):
         # self.initialize()
         # self.use_amp = self.config.FP16
         # self.scaler = GradScaler(enabled=self.use_amp)
-
+        self.ignore_steps = -1
     @property
     def _is_distributed(self):
         return len(self.config.DEVICE) > 1
@@ -56,9 +56,18 @@ class DistTrainer(BaseTrainer):
         ## Model
         model_cls = registry.get_model(self.config.MODEL.name)
         self.model = model_cls.from_config(self.config)
+        optimizer_state = None
+        scheduler_state = None
+        ignore_steps = None
         if self.config.MODEL.load_from_ckpt:
             ckpt = torch.load(self.config.MODEL.ckpt_path)
             self.model.load_state_dict(ckpt["state_dict"])
+            if "optimzier" in ckpt:
+                optimizer_state = ckpt["optimizer"]
+            if "scheduler" in ckpt:
+                scheduler_state = ckpt["scheduler"]
+            if "steps" in ckpt:
+                ignore_steps = ckpt["steps"]
         self.model.to(self.device_id)
         if self._is_distributed and mode == "train":
             self.model = DDP(
@@ -122,9 +131,17 @@ class DistTrainer(BaseTrainer):
             os.makedirs(
                 os.path.join(self.config.CHECKPOINT_DIR, "evals"), exist_ok=True
             )
-
+        ## Resume 
+        if mode=="train":
+            logger.debug(optimizer_state)
+            if optimizer_state is not None:
+                self.optimizer.load_state_dict(optimizer_state)
+            if scheduler_state is not None:
+                self.scheduler.load_state_dict(scheduler_state)
+            if ignore_steps is not None:
+                self.ignore_steps = ignore_steps
     def save_checkpoint(
-        self, file_name: str, checkpoint_dir=None, mean_loss=-1
+        self, file_name: str, checkpoint_dir=None, mean_loss=-1, steps=0
     ) -> None:
         """Save checkpoint with specified name.
 
@@ -137,6 +154,9 @@ class DistTrainer(BaseTrainer):
             else self.model.state_dict(),
             "config": self.config,
             "mean_loss": mean_loss,
+            "optimizer": self.optimizer.state_dict(),
+            "scheduler": self.scheduler.state_dict(),
+            "steps": steps,
         }
         if checkpoint_dir is None:
             checkpoint_dir = self.config.CHECKPOINT_DIR
@@ -189,20 +209,15 @@ class DistTrainer(BaseTrainer):
                 else self.loader
             )
             for batch in batch_bar:
+                # skip several steps
+                if iter_num<=self.ignore_steps:
+                    iter_num += 1
+                    continue
                 batch = {
                     k: (v.to(self.device_id) if isinstance(v, torch.Tensor) else v)
                     for k, v in batch.items()
                 }
 
-                # if self.use_amp:
-                #     with autocast(dtype=torch.float16, enabled=self.use_amp):
-                #         outputs = self.model(batch)
-                #         loss = outputs["loss"]
-                #     self.optimizer.zero_grad()
-                #     self.scaler.scale(loss).backward()
-                #     self.scaler.step(self.optimizer)
-                #     self.scaler.update()
-                # else:
                 outputs = self.model(batch)
                 loss = outputs["loss"]
                 self.optimizer.zero_grad()
@@ -213,7 +228,7 @@ class DistTrainer(BaseTrainer):
                 else:
                     self.model.clamp_param()
 
-                losses.append(loss.item())
+                losses.append(loss.detach().item())
                 smooth_loss = np.mean(
                     losses[max(0, len(losses) - loss_window) : len(losses)]
                 )
@@ -228,6 +243,7 @@ class DistTrainer(BaseTrainer):
                         f"ckpt.{self.config.MODEL.name}.best.0.pth",
                         os.path.join(self.config.CHECKPOINT_DIR, "best"),
                         mean_loss=smooth_loss,
+                        steps=iter_num,
                     )
 
                 if self._is_rank0:
@@ -256,6 +272,7 @@ class DistTrainer(BaseTrainer):
                                 ) : len(losses)
                             ]
                         ),
+                        steps=iter_num,
                     )
                 iter_num += 1
             self.scheduler.step()
@@ -266,6 +283,7 @@ class DistTrainer(BaseTrainer):
                     mean_loss=np.mean(
                         losses[max(0, len(losses) - batch_num) : len(losses)]
                     ),
+                    steps=iter_num,
                 )
 
     def eval(self):
