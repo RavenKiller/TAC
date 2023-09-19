@@ -44,6 +44,7 @@ class DistTrainer(BaseTrainer):
         # self.use_amp = self.config.FP16
         # self.scaler = GradScaler(enabled=self.use_amp)
         self.ignore_steps = -1
+
     @property
     def _is_distributed(self):
         return len(self.config.DEVICE) > 1
@@ -60,6 +61,7 @@ class DistTrainer(BaseTrainer):
         scheduler_state = None
         ignore_steps = None
         if self.config.MODEL.load_from_ckpt:
+            logger.debug("resume from {}".format(self.config.MODEL.ckpt_path))
             ckpt = torch.load(self.config.MODEL.ckpt_path)
             self.model.load_state_dict(ckpt["state_dict"])
             if "optimzier" in ckpt:
@@ -131,8 +133,8 @@ class DistTrainer(BaseTrainer):
             os.makedirs(
                 os.path.join(self.config.CHECKPOINT_DIR, "evals"), exist_ok=True
             )
-        ## Resume 
-        if mode=="train":
+        ## Resume
+        if mode == "train":
             logger.debug(optimizer_state)
             if optimizer_state is not None:
                 self.optimizer.load_state_dict(optimizer_state)
@@ -140,6 +142,7 @@ class DistTrainer(BaseTrainer):
                 self.scheduler.load_state_dict(scheduler_state)
             if ignore_steps is not None:
                 self.ignore_steps = ignore_steps
+
     def save_checkpoint(
         self, file_name: str, checkpoint_dir=None, mean_loss=-1, steps=0
     ) -> None:
@@ -210,7 +213,7 @@ class DistTrainer(BaseTrainer):
             )
             for batch in batch_bar:
                 # skip several steps
-                if iter_num<=self.ignore_steps:
+                if iter_num <= self.ignore_steps:
                     iter_num += 1
                     continue
                 batch = {
@@ -274,6 +277,11 @@ class DistTrainer(BaseTrainer):
                         ),
                         steps=iter_num,
                     )
+                del loss
+                batch.clear()
+                del batch
+                outputs.clear()
+                del outputs
                 iter_num += 1
             self.scheduler.step()
             if "epoch" in self.config.TRAINER.save_strategies and self._is_rank0:

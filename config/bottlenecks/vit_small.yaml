@@ -11,6 +11,8 @@ MODEL:
   loss_type: TAC
   bottleneck: vits
   init_time_scale: 0.083333333333333333333333333333333
+  load_from_ckpt: True
+  ckpt_path: data/checkpoints/vit_small/step/ckpt.TAC.160000.pth
   DEPTH:
     trainable: True
     feature_dim: 384
