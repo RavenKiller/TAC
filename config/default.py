@@ -54,7 +54,7 @@ _C.DATA.RGBD.is_resized = True
 _C.DATA.RGBD.block_size = 8
 
 ## add hm3d
-for i in range(48):  # fullsize is 52
+for i in range(52):  # fullsize is 52
     _C.DATA.RGBD.data_path.append(
         "/root/TAC/data/rgbd_data/hm3d_rgbd/train/{}".format(i)
     )

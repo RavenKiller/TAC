@@ -20,7 +20,7 @@ import torch.distributed as dist
 from natsort import natsorted
 
 MIN_DEPTH = 0.0
-MAX_DEPTH = 65.535
+MAX_DEPTH = 10.0
 SKIP_IDX = -100
 
 
@@ -151,10 +151,13 @@ class RGBDDataset(Dataset):
                 self.image_processor = CLIPImageProcessor.from_pretrained(
                     "openai/clip-vit-base-patch32"
                 )
+                # self.depth_processor = CLIPImageProcessor.from_pretrained(
+                #     "openai/clip-vit-base-patch32",
+                #     image_mean=[0.5, 0.5, 0.5],
+                #     image_std=[0.5, 0.5, 0.5],
+                # )
                 self.depth_processor = CLIPImageProcessor.from_pretrained(
-                    "openai/clip-vit-base-patch32",
-                    image_mean=[0.5, 0.5, 0.5],
-                    image_std=[0.5, 0.5, 0.5],
+                    "openai/clip-vit-base-patch32"
                 )
             else:
                 self.image_processor = CLIPImageProcessor.from_pretrained(
@@ -188,7 +191,6 @@ class RGBDDataset(Dataset):
         """Return a depth tensor from depth_path"""
         depth = Image.open(depth_path)
         depth = np.array(depth).astype("float32") / depth_scale  # to meters
-        MIN_DEPTH = depth.min()
         depth = np.clip(depth, MIN_DEPTH, MAX_DEPTH)
         depth = (depth - MIN_DEPTH) / (MAX_DEPTH - MIN_DEPTH)
         depth = np.expand_dims(depth, axis=2).repeat(3, axis=2)

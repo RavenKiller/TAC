@@ -15,7 +15,7 @@ MODEL:
   ckpt_path: data/checkpoints/vit_small/step/ckpt.TAC.160000.pth
   DEPTH:
     trainable: True
-    feature_dim: 384
+    feature_dim: 512
 DATA:
   RGBD:
     block_size: 8

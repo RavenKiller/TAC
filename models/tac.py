@@ -61,18 +61,21 @@ class TAC(BaseModel):
                 config.MODEL.DEPTH.model_name
             )
         elif config.MODEL.bottleneck == "vits":
-            # self.depth_transformer = ViTModel.from_pretrained(
-            #     "timm/vit_small_patch32_224.augreg_in21k_ft_in1k"
+            # self.depth_transformer = WrapModule(
+            #     timm.create_model(
+            #         "vit_small_patch32_224.augreg_in21k_ft_in1k",
+            #         pretrained=True,
+            #         num_classes=0,  # remove classifier nn.Linear
+            #     )
             # )
-            # self.depth_processor = CLIPImageProcessor.from_pretrained(
-            #     "timm/vit_small_patch32_224.augreg_in21k_ft_in1k"
-            # )
-            self.depth_transformer = WrapModule(
-                timm.create_model(
-                    "vit_small_patch32_224.augreg_in21k_ft_in1k",
-                    pretrained=True,
-                    num_classes=0,  # remove classifier nn.Linear
-                )
+            cfg = CLIPVisionConfig.from_pretrained(config.MODEL.DEPTH.model_name)
+            cfg.num_hidden_layers = 8
+            cfg.hidden_size = 512
+            cfg.num_attention_heads = 8
+            cfg.intermediate_size = 1536
+            self.depth_transformer = CLIPVisionModel(cfg)
+            self.depth_processor = CLIPImageProcessor.from_pretrained(
+                config.MODEL.DEPTH.model_name
             )
         elif config.MODEL.bottleneck == "vitl":
             cfg = CLIPVisionConfig.from_pretrained(config.MODEL.DEPTH.model_name)
