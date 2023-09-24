@@ -1,23 +1,23 @@
 # sleep 9h
 seed=25
-fd=bottlenecks
-cfg=vit_small
+fd=v2
+cfg=v2_tac_dynamictune
 
-python run_dist.py \
-    --mode eval \
-    --config config/${fd}/${cfg}.yaml \
-    DATA.RGBD.EVAL.shuffle non-shuffle \
-    EVAL_PREFIX noshuffle 
-python run_dist.py \
-    --mode eval \
-    --config config/${fd}/${cfg}.yaml \
-    DATA.RGBD.EVAL.shuffle shuffle \
-    EVAL_PREFIX shuffle 
-python run_dist.py \
-    --mode eval \
-    --config config/${fd}/${cfg}.yaml \
-    DATA.RGBD.EVAL.shuffle block-shuffle \
-    EVAL_PREFIX bshuffle 
+# python run_dist.py \
+#     --mode eval \
+#     --config config/${fd}/${cfg}.yaml \
+#     DATA.RGBD.EVAL.shuffle non-shuffle \
+#     EVAL_PREFIX noshuffle 
+# python run_dist.py \
+#     --mode eval \
+#     --config config/${fd}/${cfg}.yaml \
+#     DATA.RGBD.EVAL.shuffle shuffle \
+#     EVAL_PREFIX shuffle 
+# python run_dist.py \
+#     --mode eval \
+#     --config config/${fd}/${cfg}.yaml \
+#     DATA.RGBD.EVAL.shuffle block-shuffle \
+#     EVAL_PREFIX bshuffle 
 
 # for i in 0 1 2 3 4
 # do
@@ -31,6 +31,14 @@ python run_dist.py \
 #     DATA.RGBD.EVAL.data_path "['/root/TAC/data/rgbd_data/pretrain_val/nyuv2_val']"
 # done
 
+
+# new version using scannet as out-of-domain
+python run_dist.py \
+    --mode eval \
+    --config config/${fd}/${cfg}.yaml \
+    DATA.RGBD.EVAL.shuffle shuffle \
+    EVAL_PREFIX dynamic \
+    DATA.RGBD.EVAL.data_path "['/root/TAC/data/rgbd_data/pretrain_val/scannet_dynamic_val']" 
 # new version using scannet as out-of-domain
 python run_dist.py \
     --mode eval \

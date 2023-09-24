@@ -89,6 +89,11 @@ _C.DATA.RGBD.time_factor.append(1416.31)  # 42 images half the original value
 # _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/outdoor_train/rgbd1k_resize/outdoor")
 # _C.DATA.RGBD.scale_value.append(200.0)
 # _C.DATA.RGBD.time_factor.append(1.0)
+## add dynamic
+# _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/pretrain_val/scannet_dynamic_train")
+# _C.DATA.RGBD.scale_value.append(1000.0)
+# _C.DATA.RGBD.time_factor.append(62.53)
+
 
 #########################################################################################
 # val data
@@ -128,6 +133,10 @@ _C.DATA.RGBD.EVAL.time_factor.append(1416.31)
 # _C.DATA.RGBD.EVAL.data_path.append('/root/TAC/data/rgbd_data/pretrain_val/scannet_val')
 # _C.DATA.RGBD.EVAL.scale_value.append(1000.0)
 # _C.DATA.RGBD.EVAL.time_factor.append(1)
+## add dynamic
+# _C.DATA.RGBD.data_path.append("/root/TAC/data/rgbd_data/pretrain_val/scannet_dynamic_val")
+# _C.DATA.RGBD.scale_value.append(1000.0)
+# _C.DATA.RGBD.time_factor.append(1.0)
 
 _C.MODEL = CN()
 _C.MODEL.name = "TAC"
