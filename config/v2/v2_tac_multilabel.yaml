@@ -7,10 +7,12 @@ TRAINER:
   adam_epsilon: 1e-8
   weight_decay: 1e-3
   learning_rate: 2e-5
-  save_steps: 10
 MODEL:
   loss_type: MULI_LABEL
   init_time_scale: 0.083333333333333333333333333333333
+  bottleneck: vit
+  load_from_ckpt: True
+  ckpt_path: data/checkpoints/v2_tac_multilabel/step/ckpt.TAC.160000.pth
   IMAGE:
     model_name: openai/clip-vit-base-patch32
     trainable: True
