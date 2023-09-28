@@ -117,7 +117,7 @@ class DistTrainer(BaseTrainer):
         self.loader = loader_cls(
             self.config,
             mode=mode,
-            num_workers=4,
+            num_workers=6,
             ignore_steps=ignore_steps,
         )
         ## Folder preparation
