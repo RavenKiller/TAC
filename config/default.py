@@ -135,9 +135,10 @@ _C.MODEL.modalities = ["image", "depth"]
 _C.MODEL.text_len = 140
 _C.MODEL.load_from_ckpt = False
 _C.MODEL.ckpt_path = ""
-# CLIP: CLIP, TAC, MIX
+# CLIP, TAC
 # Contrastive: C_L2, C_COS
 # Triplet: T_L2, T_COS
+# SUP: supervised
 _C.MODEL.loss_type = "CLIP"
 _C.MODEL.negative_weight = 2.0
 _C.MODEL.focal_gamma = 0.25

@@ -15,7 +15,8 @@ from common.utils import cross_entropy_focal
 from models.encoders.clip_encoders import CLIPResEncoder
 import torch.nn.functional as F
 from torch.cuda.amp import autocast
-import timm
+
+# import timm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -61,6 +62,7 @@ class TAC(BaseModel):
                 config.MODEL.DEPTH.model_name
             )
         elif config.MODEL.bottleneck == "vits":
+            # Deprecated
             # self.depth_transformer = WrapModule(
             #     timm.create_model(
             #         "vit_small_patch32_224.augreg_in21k_ft_in1k",
@@ -121,10 +123,6 @@ class TAC(BaseModel):
                 ),
             )
         self.block_size = config.DATA.RGBD.block_size
-        # bs = self.config.TRAINER.batch_size
-        # self.wp = 1
-        # self.wn = config.MODEL.negative_weight
-        # self.gamma = config.MODEL.focal_gamma
         self.margin = config.MODEL.loss_margin
         self.time_scale = self.time_scale = torch.nn.Parameter(
             torch.tensor([config.MODEL.init_time_scale]),
@@ -142,8 +140,6 @@ class TAC(BaseModel):
 
     def embed_image(self, image_batch, fc=True):
         """Embed a batch of image."""
-        # batch_size = image_batch.shape[0]
-        # device = image_batch.device
         outputs = self.image_transformer(pixel_values=image_batch)
         outputs = outputs["last_hidden_state"][:, 0, :]
         if fc:
@@ -152,8 +148,6 @@ class TAC(BaseModel):
 
     def embed_depth(self, depth_batch, fc=True):
         """Embed a batch of depth."""
-        # batch_size = depth_batch.shape[0]
-        # device = depth_batch.device
         outputs = self.depth_transformer(pixel_values=depth_batch)
         outputs = outputs["last_hidden_state"][:, 0, :]
         if fc:
@@ -162,11 +156,6 @@ class TAC(BaseModel):
 
     def init_param(self):
         pass
-        # Init the classification bias
-        # bs = self.config.TRAINER.batch_size
-        # pos = bs
-        # neg = bs*bs-bs
-        # torch.nn.init.constant_(self.classification[0].bias, math.log(pos/neg))
 
     def clamp_param(self):
         self.temperature.data.clamp_(-2, 5)
@@ -200,13 +189,12 @@ class TAC(BaseModel):
             logits = torch.matmul(image_embeddings, depth_embeddings.T) * torch.exp(
                 self.temperature
             )
-            episode = batch["episode"].float()
+            # episode = batch["episode"].float()
             index = batch["index"].float()
             # time factor is 3sigma
             with torch.no_grad():
                 targets = torch.arange(bs).to(image_embeddings.device)
                 time_factor = batch["time_factor"].float() * self.time_scale
-                episode_mat = episode.unsqueeze(1).repeat(1, bs)
                 index_mat = index.unsqueeze(1).repeat(1, bs)
                 sigma_mat = time_factor.unsqueeze(1).repeat(1, bs)
                 gt_mat = -(((index_mat - index_mat.T) / sigma_mat) ** 2) / 2
@@ -239,13 +227,13 @@ class TAC(BaseModel):
             logits = torch.matmul(image_embeddings, depth_embeddings.T) * torch.exp(
                 self.temperature
             )
-            episode = batch["episode"].float()
+            # episode = batch["episode"].float()
             index = batch["index"].float()
             # time factor is 3sigma
             with torch.no_grad():
                 targets = torch.arange(bs).to(image_embeddings.device)
                 time_factor = batch["time_factor"].float() * self.time_scale
-                episode_mat = episode.unsqueeze(1).repeat(1, bs)
+                # episode_mat = episode.unsqueeze(1).repeat(1, bs)
                 index_mat = index.unsqueeze(1).repeat(1, bs)
                 sigma_mat = time_factor.unsqueeze(1).repeat(1, bs)
                 gt_mat = -(((index_mat - index_mat.T) / sigma_mat) ** 2) / 2
@@ -272,49 +260,6 @@ class TAC(BaseModel):
                 d2i_prediction = logits.argmax(dim=0)
                 predictions = torch.cat([i2d_prediction, d2i_prediction], dim=0)
                 targets = torch.cat([targets, targets], dim=0)
-        elif self.config.MODEL.loss_type == "MIX":  # clip loss with soft label
-            ## CLIP part
-            image_embeddings = F.normalize(image_embeddings)
-            depth_embeddings = F.normalize(depth_embeddings)
-            logits = torch.matmul(image_embeddings, depth_embeddings.T) * torch.exp(
-                self.temperature
-            )
-            episode = batch["episode"].float()
-            index = batch["index"].float()
-            # only related in 1 second, that is 0.5s corresponding to 3\sigma
-            # apply learnable weight
-            with torch.no_grad():
-                time_factor = batch["time_factor"].float() * self.time_scale
-                episode_mat = episode.unsqueeze(1).repeat(1, bs)
-                index_mat = index.unsqueeze(1).repeat(1, bs)
-                sigma_mat = time_factor.unsqueeze(1).repeat(1, bs)
-                factor_mask = sigma_mat != sigma_mat.T
-                sigma_mat[factor_mask] = 1000000
-                gt_mat = -(((index_mat - index_mat.T) / sigma_mat) ** 2) / 2
-                gt_mat = torch.exp(gt_mat)
-                gt_mat[episode_mat != episode_mat.T] = 0
-            # TODO: different curves for gt. the current is gaussian + linear prob
-            loss_i2d = F.cross_entropy(logits, F.normalize(gt_mat, p=1))
-            loss_d2i = F.cross_entropy(logits.T, F.normalize(gt_mat.T, p=1))
-            loss = (loss_i2d + loss_d2i) / 2
-
-            # for evaluation
-            with torch.no_grad():
-                targets = torch.arange(bs).to(image_embeddings.device)
-                i2d_prediction = logits.argmax(dim=1)
-                d2i_prediction = logits.argmax(dim=0)
-                predictions = torch.cat([i2d_prediction, d2i_prediction], dim=0)
-                targets = torch.cat([targets, targets], dim=0)
-
-            ## TCOS part
-            dp = (image_embeddings * depth_embeddings).sum(dim=1) - 1
-            dn = (
-                image_embeddings * torch.roll(depth_embeddings, self.block_size, dims=0)
-            ).sum(dim=1) - 1
-            loss_ = torch.relu(-dp + dn + self.margin).mean()
-
-            loss = loss + loss_
-
         elif self.config.MODEL.loss_type == "C_L2":  # contrastive loss with L2 distance
             # calculate loss
             image_embeddings = F.normalize(image_embeddings)
@@ -403,12 +348,8 @@ class TAC(BaseModel):
             d2i_prediction = logits.argmax(dim=0)
             predictions = torch.cat([i2d_prediction, d2i_prediction], dim=0)
             targets = torch.cat([targets, targets], dim=0)
-        elif (
-            self.config.MODEL.loss_type == "SUP"
-        ):  # triplet loss with cosine similarity
+        elif self.config.MODEL.loss_type == "SUP":  # supervised loss
             # calculate loss
-            # image_embeddings = F.normalize(image_embeddings)
-            # depth_embeddings = F.normalize(depth_embeddings)
             fp = torch.cat((image_embeddings, depth_embeddings), dim=1)
             fn = torch.cat(
                 (
