@@ -195,6 +195,7 @@ class TAC(BaseModel):
             with torch.no_grad():
                 targets = torch.arange(bs).to(image_embeddings.device)
                 time_factor = batch["time_factor"].float() * self.time_scale
+                # episode_mat = episode.unsqueeze(1).repeat(1, bs)
                 index_mat = index.unsqueeze(1).repeat(1, bs)
                 sigma_mat = time_factor.unsqueeze(1).repeat(1, bs)
                 gt_mat = -(((index_mat - index_mat.T) / sigma_mat) ** 2) / 2
