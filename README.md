@@ -1,5 +1,5 @@
-# TAC
-Official implementation of the paper: Learning Depth Representation from RGB-D Videos by Time-Aware Contrastive Pre-training
+# Learning Depth Representation from RGB-D Videos by Time-Aware Contrastive Pre-training
+\[[paper](https://ieeexplore.ieee.org/document/10288539)\]
 
 ## Setup environments
 1. Use [anaconda](https://anaconda.org/) to create a Python 3.8 environment:
@@ -105,3 +105,16 @@ EQA
 Rearrange
 
 ![image](resources/rearrange1.gif)
+
+## Citation
+```
+@ARTICLE{10288539,
+  author={He, Zongtao and Wang, Liuyi and Dang, Ronghao and Li, Shu and Yan, Qingqing and Liu, Chengju and Chen, Qijun},
+  journal={IEEE Transactions on Circuits and Systems for Video Technology}, 
+  title={Learning Depth Representation from RGB-D Videos by Time-Aware Contrastive Pre-training}, 
+  year={2023},
+  volume={},
+  number={},
+  pages={1-1},
+  doi={10.1109/TCSVT.2023.3326373}}
+```
