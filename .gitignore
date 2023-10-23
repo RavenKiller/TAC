@@ -184,3 +184,4 @@ scripts/*.png
 /*.npy
 /*.json
 /scripts/*.json
+/*.pth

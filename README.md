@@ -75,6 +75,9 @@ Run `generate_eval_order.sh` to compare whether the evaluation orders are the sa
 |-----|:-------------:|:--------------------:|:------------------:|:----------------:|
 | TAC |     0.974     |         0.642        |        0.603       |       0.850      |
 
+## Customize usage
+`scripts/demo.ipynb` gives a simple demonstration of encoding a depth image. You can also separate the depth encoder apart from the whole model as needed.
+
 ## Pretrained weight
 
 \[[Checkpoint](https://www.jianguoyun.com/p/DdTCEJwQhY--CRiuxY0F)\]

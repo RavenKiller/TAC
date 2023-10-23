@@ -206,7 +206,7 @@ class RGBDDataset(Dataset):
                 # test2 = self.processor(depth, return_tensors="pt").pixel_values.squeeze() # numeric error because of [0,1]->[0,255]->[0,1]
             else:
                 depth = self.depth_processor(
-                    depth, return_tensors="pt"
+                    depth, do_rescale=False, return_tensors="pt"
                 ).pixel_values.squeeze()
         else:
             depth = torch.tensor(depth)
