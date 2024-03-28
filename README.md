@@ -1,5 +1,5 @@
 # Learning Depth Representation from RGB-D Videos by Time-Aware Contrastive Pre-training
-\[[paper](https://ieeexplore.ieee.org/document/10288539)\]
+\[[paper](https://ieeexplore.ieee.org/document/10288539)\] \[[model card](https://huggingface.co/RavenK/TAC-ViT-base)\]
 
 ## Setup environments
 1. Use [anaconda](https://anaconda.org/) to create a Python 3.8 environment:
