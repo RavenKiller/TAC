@@ -114,10 +114,11 @@ Rearrange
 @ARTICLE{10288539,
   author={He, Zongtao and Wang, Liuyi and Dang, Ronghao and Li, Shu and Yan, Qingqing and Liu, Chengju and Chen, Qijun},
   journal={IEEE Transactions on Circuits and Systems for Video Technology}, 
-  title={Learning Depth Representation from RGB-D Videos by Time-Aware Contrastive Pre-training}, 
-  year={2023},
-  volume={},
-  number={},
-  pages={1-1},
+  title={Learning Depth Representation From RGB-D Videos by Time-Aware Contrastive Pre-Training}, 
+  year={2024},
+  volume={34},
+  number={6},
+  pages={4143-4158},
   doi={10.1109/TCSVT.2023.3326373}}
+
 ```
