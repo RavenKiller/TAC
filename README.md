@@ -1,5 +1,20 @@
-# Learning Depth Representation from RGB-D Videos by Time-Aware Contrastive Pre-training
-\[[paper](https://ieeexplore.ieee.org/document/10288539)\] \[[model card](https://huggingface.co/RavenK/TAC-ViT-base)\]
+<div align="center">
+
+<h1>Learning Depth Representation from RGB-D Videos  <br /> by Time-Aware Contrastive Pre-training </h1>
+
+<div>
+    <a href='https://ieeexplore.ieee.org/document/10288539' target='_blank'>[Paper]</a>
+    <a href='https://huggingface.co/RavenK/TAC-ViT-base' target='_blank'>[Model Card]</a>
+</div>
+</div>
+
+<br />
+<div align="center">
+    <img src="https://github.com/RavenKiller/TAC/assets/41775391/ee55c9c9-f11d-4ba0-a78e-02c592aef6e3", width="1000", alt="TAC pre-training">
+</div>
+<br />
+Existing end-to-end depth representation in embodied AI is often task-specific and lacks the benefits of emerging pre-training paradigm due to limited datasets and training techniques for RGB-D videos. To address the challenge of obtaining robust and generalized depth representation for embodied AI, we introduce a unified RGB-D video dataset (UniRGBD) and a novel time-aware contrastive (TAC) pre-training approach. UniRGBD addresses the scarcity of large-scale depth pre-training datasets by providing a comprehensive collection of data from diverse sources in a unified format, enabling convenient data loading and accommodating various data domains. We also design an RGB-Depth alignment evaluation procedure and introduce a novel Near-K accuracy metric to assess the scene understanding capability of the depth encoder. Then, the TAC pre-training approach fills the gap in depth pre-training methods suitable for RGB-D videos by leveraging the intrinsic similarity between temporally proximate frames. TAC incorporates a soft label design that acts as valid label noise, enhancing the depth semantic extraction and promoting diverse and generalized knowledge acquisition. Furthermore, the adjustments in perspective between temporally proximate frames facilitate the extraction of invariant and comprehensive features, enhancing the robustness of the learned depth representation. Additionally, the inclusion of temporal information stabilizes training gradients and enables spatio-temporal depth perception. Comprehensive evaluation of RGB-Depth alignment demonstrates the superiority of our approach over state-of-the-art methods. We also conduct uncertainty analysis and a novel zero-shot experiment to validate the robustness and generalization of the TAC approach. Moreover, our TAC pre-training demonstrates significant performance improvements in various embodied AI tasks, providing compelling evidence of its efficacy across diverse domains.
+
 
 ## Setup environments
 1. Use [anaconda](https://anaconda.org/) to create a Python 3.8 environment:
